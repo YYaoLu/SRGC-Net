@@ -6,7 +6,6 @@ This code was developed and tested with Python2.7, Pytorch 0.3 and CUDA 8.0 on U
 # Running the Demo
 You are able to run the provided demo code.  
 ```
-cd script
 sh SRGC.sh
 ```
 # How to train
