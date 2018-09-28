@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-cd ..
 
 python train_cifar.py \
 --arch=SRGC \
@@ -16,8 +15,6 @@ python train_cifar.py \
 --lr_schedule=0 \
 --momentum=0.9 \
 --weight_decay=0.0002 \
---width_factor=2 \
---ckpt_path='/home/amax/SRGC_Net'\
---resume
+--width_factor=2 
 
 
