@@ -82,9 +82,7 @@ def main():
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
-            #transform the valuesof pixels [0,255] to the range[0.0,1.0] 
             transforms.ToTensor(),
-            #normalize the Tensor with channel=(channel-mean)/std
             transforms.Normalize(mean_cifar10, std_cifar10),
         ])
         transform_test = transforms.Compose([
@@ -138,7 +136,6 @@ def main():
 
     # Use GPUs if available.
     if torch.cuda.is_available():
-
         model.cuda()
         model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()-2))
         cudnn.benchmark = True
@@ -164,26 +161,15 @@ def main():
     for epoch in range(start_epoch, args.epochs):
         # Learning rate schedule.
         lr = adjust_learning_rate(optimizer, epoch + 1)
-        #train_writer.add_scalar('lr', lr, epoch)
-
         # Train for one epoch.
         losses_avg, acces_avg=train(train_loader, model, criterion, optimizer , epoch)
-        #trainF.write('{},{},{}\n'.format(epoch, losses_avg, 100.*(1-acces_avg)))
-        #trainF.flush()
-
         # Eval on test set.
         num_iter = (epoch + 1) * len(train_loader)
         #
         losses_avg,acc = eval(test_loader, model, criterion, epoch, num_iter)
-        #testF.write('{},{},{}\n'.format(epoch, losses_avg, 100.*(1-acc)))
-        #testF.flush()
-        # Save checkpoint.
+       
         print('Saving Checkpoint......')
-        #state = {
-            #'model': model.module if torch.cuda.is_available() else model,
-            #'best_acc': best_acc,
-            #'epoch': epoch,
-        #}
+   
 	if torch.cuda.is_available():	
 	    state = {
             'model': model,#model.module
@@ -204,13 +190,9 @@ def main():
             if not os.path.isdir(os.path.join(log_dir ,'best_ckpt')):
                 os.mkdir(os.path.join(log_dir, 'best_ckpt'))
             torch.save(state, os.path.join(log_dir ,'best_ckpt', 'ckpt.t7'))
-
-        #train_writer.add_scalar('best_acc', best_acc, epoch)
     # log to plot
     print (best_acc)
-    #train_writer.close()
-    #test_writer.close()
-
+    
 
 def adjust_learning_rate(optimizer, epoch):
     if args.lr_schedule == 0:
@@ -221,19 +203,8 @@ def adjust_learning_rate(optimizer, epoch):
         lr = args.lr * ((0.1 ** int(epoch >= 80)) * (0.1 ** int(epoch >= 120)))
     else:
         raise Exception("Invalid learning rate schedule!")
-    #if len(optimizer.param_groups)-3>0:
-    	#for i in range(len(optimizer.param_groups)-3):
-		#optimizer.param_groups[i]['lr']=lr
-    	#for i in range(len(optimizer.param_groups)-3,len(optimizer.param_groups)):
-		#optimizer.param_groups[i]['lr']=lr*1e-4
-    #else:
     for param_group in optimizer.param_groups:
         	param_group['lr'] = lr
-	
-    #for param_group in optimizer.param_groups:
-	#if not param_group['lr'] == lr*param_group['lr'] :
-        	#param_group['lr'] = lr*param_group['lr'] 
-	#print(epoch,param_group['lr'] )
     return lr
 
 
@@ -250,30 +221,16 @@ def train(train_loader, model, criterion, optimizer, epoch):
     
     #each batch calculates the values of loss and gradient
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        num_iter = epoch * len(train_loader) + batch_idx
-        # Add summary to train images.
-        #writer.add_image('image', vutils.make_grid(inputs[0:4], normalize=False, scale_each=True), num_iter)
-        # Add summary to conv1 weights.
-        #conv1_weights = model.module.conv1.weight.clone().cpu().data.numpy()
-        #writer.add_histogram('conv1', conv1_weights, num_iter)
-
+        num_iter = epoch * len(train_loader) + batch_idx 
         if torch.cuda.is_available():
-	    #print("it's ok")
-	    #model=model.cuda()
             inputs, targets = inputs.cuda(), targets.cuda()
         optimizer.zero_grad()
         inputs, targets = Variable(inputs), Variable(targets)
 
-        # Compute gradients and do back propagation.
-        #call resnet.py
+        # Compute gradients and do back propagation
         outputs = model(inputs,epoch)
-        #crossEntrypyLoss Criterion
-        #criterion(outputs, targets)loss(x, class) = weight[class] * (-x[class] + log(\sum_j exp(x[j])))
         loss = criterion(outputs, targets)
-	
-	#loss.backward(retain_graph=True)
 	loss.backward()
-        #update the parameters after calcute the gradient with backward()
         optimizer.step()
 
         losses.update(loss.data[0]*inputs.size(0), inputs.size(0))  
@@ -281,13 +238,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
         correct = predicted.eq(targets.data).cpu().sum()
 
         acces.update(correct, inputs.size(0))
-        # measure elapsed time
+
         sample_time.update(time.time() - end, inputs.size(0))
         end = time.time()
-        #sys.stdout.write('Loss: %.4f | Acc: %.4f%% (%5d/%5d) \r' % (losses.avg, 100. * acces.avg, acces.numerator, acces.denominator))
-        #sys.stdout.flush()
-    #writer.add_scalar('loss', losses.avg, epoch)
-    #writer.add_scalar('acc', acces.avg, epoch)
     print('Loss: %.4f | Acc: %.4f%% (%d/%d)' % (losses.avg, 100. * acces.avg, acces.numerator, acces.denominator))
     return losses.avg, acces.avg
     
@@ -319,5 +272,3 @@ def eval(test_loader, model, criterion,  epoch, num_iter):
 
 if __name__ == '__main__':
     main()
-
-
