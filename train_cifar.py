@@ -62,9 +62,6 @@ parser.add_argument('--weight_decay', default=5e-4, type=float,
 parser.add_argument('--resume', default=False, action='store_true', help='resume from checkpoint')
 parser.add_argument('--ckpt_path', default='', type=str, metavar='PATH',
                     help='path to checkpoint (default: none)')
-parser.add_argument('--width_factor', default=2, type=float,
-                    help='width_factor')
-
 
 
 
