@@ -13,3 +13,4 @@ sh SRGC-Nets.sh
 ```
 # Accuracy comparisons on CIFAR datasets 
 
+![image](https://github.com/YYaoLu/SRGC-Net/blob/master/figures/CIFAR_accuracy.PNG)
