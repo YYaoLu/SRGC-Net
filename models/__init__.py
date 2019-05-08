@@ -1,3 +1,0 @@
-
-from .SRGC import SRGC
-
