@@ -11,5 +11,5 @@ You are able to run the provided demo code.
 cd scripts 
 sh SRGC-Nets.sh
 ```
- 
+# Accuracy comparisons on CIFAR datasets 
 
